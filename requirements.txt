@@ -29,6 +29,9 @@ executing @ file:///home/conda/feedstock_root/build_artifacts/executing_16460444
 fastjsonschema @ file:///tmp/build/80754af9/python-fastjsonschema_1620414857593/work/dist
 filelock==3.7.0
 fonttools==4.33.3
+funcy==1.17
+future==0.18.2
+gender-guesser==0.4.0
 gensim==4.2.0
 huggingface-hub==0.6.0
 idna @ file:///tmp/build/80754af9/idna_1637925883363/work
@@ -81,6 +84,7 @@ pure-eval @ file:///home/conda/feedstock_root/build_artifacts/pure_eval_16428759
 pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
 pydantic==1.8.2
 Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1650904496387/work
+pyLDAvis==3.3.1
 pyOpenSSL @ file:///opt/conda/conda-bld/pyopenssl_1643788558760/work
 pyparsing @ file:///tmp/build/80754af9/pyparsing_1635766073266/work
 pyrsistent @ file:///C:/ci_310/pyrsistent_1642117077485/work
@@ -101,6 +105,7 @@ Send2Trash @ file:///tmp/build/80754af9/send2trash_1632406701022/work
 shellingham @ file:///Users/ktietz/demo/mc3/conda-bld/shellingham_1629144685686/work
 sip==4.19.13
 six @ file:///tmp/build/80754af9/six_1644875935023/work
+sklearn==0.0
 smart-open @ file:///C:/ci/smart_open_1651235038100/work
 soupsieve @ file:///tmp/build/80754af9/soupsieve_1636706018808/work
 spacy @ file:///C:/ci/spacy_1651657015391/work
