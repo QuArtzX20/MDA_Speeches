@@ -1,0 +1,97 @@
+//1. We will import each speech as a separate node with content stored as the property of the node. Nodes are also created for the speaker(orator) and the title of the speech. There is a gender property associated with the speaker We will also create relationships between Speeches, orator and between speeches and title.
+LOAD CSV FROM 'file:///speeches2.csv' AS line FIELDTERMINATOR ';'
+with line
+skip 1
+CREATE (s:Speech {Title:line[3], Content: line[6]})
+CREATE (o:Orator{Title:line[3], Content: line[6], Gender: line[2]})
+CREATE (t:Title {Title:line[3], Content: line[6]})
+MERGE (s) -[:GIVEN_BY]-> (o)
+MERGE (s) -[:KNOWN_AS]-> (t)
+
+//2. To view the whole database graph
+MATCH (n) RETURN n
+
+//3. Check the visualisation of nodes and relationships
+call db.schema.visualization()
+
+
+//4. Checking for Gender property
+MATCH (o:Orator)
+WHERE o.gender IS NOT NULL
+RETURN o.content, o.gender
+
+//5. Checking for Gender property (female)
+MATCH (o:Orator)
+WHERE o.gender = "Female"
+RETURN o.content, o.gender
+
+//6. Checking for Gender property (male)
+MATCH (o:Orator)
+WHERE o.gender = "Male"
+RETURN o.content, o.gender limit 5
+
+//7. Retrieving entities for speeches
+MATCH (s:Speech)
+CALL apoc.nlp.gcp.entities.stream(s, {
+  key: "AIzaSyDMu-yXIK5QrmEs3hjAdiTU80PdM2JZebM",
+  nodeProperty: "content",
+  write:FALSE
+})
+YIELD value
+UNWIND value.entities AS entity
+RETURN entity;
+
+//8. Connecting entities to speeches
+MATCH (s:Speech)
+CALL apoc.nlp.gcp.entities.stream(s, {
+  key: "AIzaSyDMu-yXIK5QrmEs3hjAdiTU80PdM2JZebM",
+  nodeProperty: "content"
+})
+YIELD value
+UNWIND value.entities AS entity
+MERGE (e:Entity {name: entity.name})
+SET e.type = entity.type
+MERGE (s)-[:ENTITY]->(e);
+
+//8.1 Check the visualisation of nodes and relationships
+call db.schema.visualization()
+
+//9. Querying most used entity type
+MATCH (s:Speech)-[r:ENTITY]->(e:Entity)
+WITH e.type as type, COUNT(DISTINCT e) as number
+RETURN type, number
+ORDER by number desc
+
+//9.1 Visualise the the most used type of entity and its related words(except type: other)
+MATCH (s:Speech)-[r:ENTITY]->(e:Entity)
+where e.type='PERSON'
+return s,r,e
+
+
+//9.2 Querying for entity types most used by males 
+MATCH (o:Orator)<-[r:GIVEN_BY]-(s:Speech)-[t:ENTITY]->(e:Entity)
+WHERE o.gender="Male"
+WITH e.type as male_type, count(DISTINCT e) as male_number
+RETURN male_type, male_number
+ORDER by male_number desc
+
+//9.3 Querying for entity types most used by females 
+MATCH (o:Orator)<-[r:GIVEN_BY]-(s:Speech)-[t:ENTITY]->(e:Entity)
+WHERE o.gender="Female"
+WITH e.type as female_type, count(DISTINCT e) as female_number
+RETURN female_type, female_number
+ORDER by female_number desc
+
+//9.4 Querying for entities (words) most used by females 
+MATCH (o:Orator)<-[r:GIVEN_BY]-(s:Speech)-[t:ENTITY]->(e:Entity)
+WHERE o.gender="Female"
+WITH e.name as most_usedbywomen, count(e) as frequency
+RETURN most_usedbywomen,frequency
+ORDER by frequency desc limit 50
+
+//9.5 Querying for entities (words) most used by males 
+MATCH (o:Orator)<-[r:GIVEN_BY]-(s:Speech)-[t:ENTITY]->(e:Entity)
+WHERE o.gender="Male"
+WITH e.name as most_usedbymen, count(e) as frequency
+RETURN most_usedbymen,frequency
+ORDER by frequency desc limit 50
